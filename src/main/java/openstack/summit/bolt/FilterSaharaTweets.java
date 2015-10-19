@@ -1,6 +1,11 @@
 package openstack.summit.bolt;
 
+import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
 
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
@@ -8,14 +13,16 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
-import backtype.storm.tuple.Values;
 
 public class FilterSaharaTweets extends BaseRichBolt {
 
 	private static final long serialVersionUID = -3752711690604033901L;
 	private OutputCollector collector;
+	private String hostBroker;
 
-	public FilterSaharaTweets() {
+	public FilterSaharaTweets(String hostBroker) {
+		this.hostBroker = hostBroker;
+
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -25,36 +32,25 @@ public class FilterSaharaTweets extends BaseRichBolt {
 	}
 
 	public void execute(Tuple input) {
-		String logLine = input.getString(0);
-		System.out.println("<<<<<<<<<>>>>>>>>>");
-		System.out.println("<<<<<<<<<>>>>>>>>>");
-		System.out.println("<<<<<<<<<>>>>>>>>>");
-		System.out.println("<<<<<<<<<>>>>>>>>>");
-		System.out.println(logLine);
-		System.out.println("<<<<<<<<<>>>>>>>>>");
-		System.out.println("<<<<<<<<<>>>>>>>>>");
-		System.out.println("<<<<<<<<<>>>>>>>>>");
-		System.out.println("<<<<<<<<<>>>>>>>>>");
-		if (logLine.contains("ERROR")) {
-			String timestamp = getTimestamp(logLine);
-			String component = getComponent(logLine);
-			collector.emit(new Values(component, timestamp));
+		String tweet = input.getString(0);
+		if (tweet.contains("storm")|| tweet.contains("Storm") || tweet.contains("STORM") ) {
+			Map<String, Object> props = getKafkaConfigs(hostBroker);
+			try (KafkaProducer<String, String> producer = new KafkaProducer<>(
+					props)) {
+				producer.send(new ProducerRecord<String, String>("alarm", tweet));
+			}
 		}
 		collector.ack(input);
 	}
 	
-	private String getTimestamp(String logLine) {
-		String[] splittedString = logLine.split(" ");
-		String timestamp = splittedString[0] + " " + splittedString[1];
-		return timestamp;
-	}
-	
-	private String getComponent(String logLine) {
-		String[] splittedString = logLine.split(" ");
-		String componentComplete = splittedString[4];
-		String[] splittedComponent = componentComplete.split("\\.");
-		String component = splittedComponent[0];
-		return component;
+	private Map<String, Object> getKafkaConfigs(String hostBroker) {
+		Map<String, Object> props = new HashMap<>();
+		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, hostBroker + ":9092");
+		props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
+		props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
+		props.put(ProducerConfig.CLIENT_ID_CONFIG, "storm-output");
+		
+		return props;
 	}
 
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {

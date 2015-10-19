@@ -3,7 +3,6 @@ package openstack.summit;
 import java.util.Map;
 import java.util.UUID;
 
-import openstack.summit.bolt.AlarmBolt;
 import openstack.summit.bolt.FilterSaharaTweets;
 import storm.kafka.Broker;
 import storm.kafka.KafkaSpout;
@@ -15,7 +14,6 @@ import backtype.storm.Config;
 import backtype.storm.StormSubmitter;
 import backtype.storm.spout.SchemeAsMultiScheme;
 import backtype.storm.topology.TopologyBuilder;
-import backtype.storm.tuple.Fields;
 import backtype.storm.utils.Utils;
 
 public class SaharaTweetsTopology {
@@ -47,26 +45,20 @@ public class SaharaTweetsTopology {
 						hostBroker, BROKER_PORT));
 			}
 
-			StaticHosts staticHosts = new StaticHosts(
-					globalPartitionInformation);
-
+			StaticHosts staticHosts = new StaticHosts(globalPartitionInformation);
+			
 			SpoutConfig spoutConfig = new SpoutConfig(staticHosts, topic, "/"
 					+ topic, UUID.randomUUID().toString());
+			
 			spoutConfig.scheme = new SchemeAsMultiScheme(new StringScheme());
-
+			
 			topologyBuilder.setSpout("spout", new KafkaSpout(spoutConfig), 1);
 			topologyBuilder
-					.setBolt("filterErrorBolt", new FilterSaharaTweets(), 4)
+					.setBolt("filterSaharaTweetsBolt", new FilterSaharaTweets(hostBroker), 4)
 					.shuffleGrouping("spout");
-			topologyBuilder.setBolt("alarmBolt", new AlarmBolt(hostBroker), 12)
-					.fieldsGrouping("filterErrorBolt", new Fields("component"));
 
 			Config config = new Config();
-			config.setNumWorkers(3);
-			config.put(Config.TOPOLOGY_RECEIVER_BUFFER_SIZE, 8);
-			config.put(Config.TOPOLOGY_TRANSFER_BUFFER_SIZE, 32);
-			config.put(Config.TOPOLOGY_EXECUTOR_RECEIVE_BUFFER_SIZE, 16384);
-			config.put(Config.TOPOLOGY_EXECUTOR_SEND_BUFFER_SIZE, 16384);
+			config.setNumWorkers(2);
 
 			StormSubmitter.submitTopologyWithProgressBar(topologyName, config,
 					topologyBuilder.createTopology());

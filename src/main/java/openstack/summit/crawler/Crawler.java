@@ -11,6 +11,7 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.log4j.Logger;
 
+import twitter4j.FilterQuery;
 import twitter4j.StallWarning;
 import twitter4j.Status;
 import twitter4j.StatusDeletionNotice;
@@ -39,7 +40,7 @@ public class Crawler {
 					if (tweetCount < 50000) {
 						if (lang.equals("en")) {
 							producer.send(new ProducerRecord<String, String>(
-									"logs", status.toString()));
+									"logs", status.getText()));
 							tweetCount++;
 						}
 					} else {
@@ -101,13 +102,22 @@ public class Crawler {
 
 		TwitterStream twitterStream = new TwitterStreamFactory(
 				twitterConf.build()).getInstance();
+		
+		FilterQuery fq = new FilterQuery();
+	    
+        String keywords[] = {"Sahara"};
+
 		twitterStream.addListener(listener);
+		fq.track(keywords);
 
 		twitterStream.sample();
+		twitterStream.filter(fq);
 
 	}
 
 	public static void main(String[] args) throws TwitterException, IOException {
+		Crawler crawler = new Crawler();
+		crawler.getTweets();
 
 	}
 
