@@ -10,12 +10,12 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 
-public class FilterErrorBolt extends BaseRichBolt {
+public class FilterSaharaTweets extends BaseRichBolt {
 
 	private static final long serialVersionUID = -3752711690604033901L;
 	private OutputCollector collector;
 
-	public FilterErrorBolt() {
+	public FilterSaharaTweets() {
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -26,6 +26,15 @@ public class FilterErrorBolt extends BaseRichBolt {
 
 	public void execute(Tuple input) {
 		String logLine = input.getString(0);
+		System.out.println("<<<<<<<<<>>>>>>>>>");
+		System.out.println("<<<<<<<<<>>>>>>>>>");
+		System.out.println("<<<<<<<<<>>>>>>>>>");
+		System.out.println("<<<<<<<<<>>>>>>>>>");
+		System.out.println(logLine);
+		System.out.println("<<<<<<<<<>>>>>>>>>");
+		System.out.println("<<<<<<<<<>>>>>>>>>");
+		System.out.println("<<<<<<<<<>>>>>>>>>");
+		System.out.println("<<<<<<<<<>>>>>>>>>");
 		if (logLine.contains("ERROR")) {
 			String timestamp = getTimestamp(logLine);
 			String component = getComponent(logLine);

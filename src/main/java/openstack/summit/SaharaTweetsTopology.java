@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import openstack.summit.bolt.AlarmBolt;
-import openstack.summit.bolt.FilterErrorBolt;
+import openstack.summit.bolt.FilterSaharaTweets;
 import storm.kafka.Broker;
 import storm.kafka.KafkaSpout;
 import storm.kafka.SpoutConfig;
@@ -18,7 +18,7 @@ import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
 import backtype.storm.utils.Utils;
 
-public class StormLogAnalyzerTopology {
+public class SaharaTweetsTopology {
 
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws Exception {
@@ -56,7 +56,7 @@ public class StormLogAnalyzerTopology {
 
 			topologyBuilder.setSpout("spout", new KafkaSpout(spoutConfig), 1);
 			topologyBuilder
-					.setBolt("filterErrorBolt", new FilterErrorBolt(), 4)
+					.setBolt("filterErrorBolt", new FilterSaharaTweets(), 4)
 					.shuffleGrouping("spout");
 			topologyBuilder.setBolt("alarmBolt", new AlarmBolt(hostBroker), 12)
 					.fieldsGrouping("filterErrorBolt", new Fields("component"));

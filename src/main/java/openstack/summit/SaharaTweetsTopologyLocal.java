@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import openstack.summit.ReadLogLines;
 import openstack.summit.bolt.AlarmBolt;
-import openstack.summit.bolt.FilterErrorBolt;
+import openstack.summit.bolt.FilterSaharaTweets;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
 
@@ -25,7 +25,7 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.utils.Utils;
 
 
-public class StormLogAnalyzerTopologyLocal {
+public class SaharaTweetsTopologyLocal {
 	
 	public static void main(String[] args) {
 		final int numSpouts = 1;
@@ -50,7 +50,7 @@ public class StormLogAnalyzerTopologyLocal {
 		spoutConfig.scheme = new SchemeAsMultiScheme(new StringScheme());
 
 		topologyBuilder.setSpout("spout", new KafkaSpout(spoutConfig), numSpouts);
-		topologyBuilder.setBolt("filterErrorBolt", new FilterErrorBolt(), 4).shuffleGrouping("spout");
+		topologyBuilder.setBolt("filterErrorBolt", new FilterSaharaTweets(), 4).shuffleGrouping("spout");
 		topologyBuilder.setBolt("alarmBolt", new AlarmBolt(hostBroker), 12).fieldsGrouping("filterErrorBolt", new Fields("component"));
 		
 
