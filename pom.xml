@@ -2,10 +2,10 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>openstack.summit</groupId>
-	<artifactId>log-analyzer</artifactId>
+	<artifactId>sahara-st-tweets</artifactId>
 	<packaging>jar</packaging>
-	<version>1.2</version>
-	<name>log-analyzer</name>
+	<version>1.0</version>
+	<name>sahara-st-tweets</name>
 	<url>http://maven.apache.org</url>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -70,10 +70,6 @@
 				<exclusion>
 					<groupId>org.apache.zookeeper</groupId>
 					<artifactId>zookeeper</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>log4j</groupId>
-					<artifactId>log4j</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>

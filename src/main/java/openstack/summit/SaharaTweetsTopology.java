@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import openstack.summit.bolt.FilterSaharaTweets;
+import openstack.summit.crawler.Crawler;
 import storm.kafka.Broker;
 import storm.kafka.KafkaSpout;
 import storm.kafka.SpoutConfig;
@@ -59,7 +60,7 @@ public class SaharaTweetsTopology {
 
 			Config config = new Config();
 			config.setNumWorkers(2);
-
+			
 			StormSubmitter.submitTopologyWithProgressBar(topologyName, config,
 					topologyBuilder.createTopology());
 

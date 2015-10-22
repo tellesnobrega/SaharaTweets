@@ -45,12 +45,12 @@ public class SaharaTweetsTopologyLocal {
 		
 
 		Config config = new Config();
-		config.setNumWorkers(3);
+		config.setNumWorkers(2);
 		
 		Thread thread = new Thread() {
 	    	public void run() {
 			    Utils.sleep(30000);
-			    new Crawler().getTweets();
+			    new Crawler("localhost").getTweets();
 	    	}
 	    };
 	    

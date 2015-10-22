@@ -54,7 +54,6 @@ public class FilterSaharaTweets extends BaseRichBolt {
 	}
 
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {
-	    declarer.declare(new Fields("component", "alarm"));
 	}
 	
 }

@@ -27,8 +27,13 @@ import twitter4j.conf.ConfigurationBuilder;
  *
  */
 public class Crawler {
+	
 	private static final Logger log = Logger.getLogger(Crawler.class);
-
+	private String hostBroker;
+	
+	public Crawler(String hostBroker) {
+		this.hostBroker = hostBroker;
+	}
 	public void getTweets() {
 		StatusListener listener = new StatusListener() {
 			int tweetCount = 0;
@@ -39,8 +44,9 @@ public class Crawler {
 						getKafkaConfigs())) {
 					if (tweetCount < 50000) {
 						if (lang.equals("en")) {
+							System.out.println(status.getText());
 							producer.send(new ProducerRecord<String, String>(
-									"logs", status.getText()));
+									"tweets", status.getText()));
 							tweetCount++;
 						}
 					} else {
@@ -52,7 +58,7 @@ public class Crawler {
 			private Map<String, Object> getKafkaConfigs() {
 				Map<String, Object> props = new HashMap<>();
 				props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
-						"localhost:9092");
+						hostBroker + ":9092");
 				props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
 						"org.apache.kafka.common.serialization.StringSerializer");
 				props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
@@ -116,7 +122,7 @@ public class Crawler {
 	}
 
 	public static void main(String[] args) throws TwitterException, IOException {
-		Crawler crawler = new Crawler();
+		Crawler crawler = new Crawler(args[0]);
 		crawler.getTweets();
 
 	}
